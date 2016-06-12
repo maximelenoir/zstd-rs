@@ -121,6 +121,7 @@
 <span id="77">77</span>
 <span id="78">78</span>
 <span id="79">79</span>
+<span id="80">80</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>ll</span>;
 
@@ -130,8 +131,8 @@
     <span class='ident'>c</span>: <span class='ident'>ll</span>::<span class='ident'>ZSTDCompressionContext</span>,
 }
 
-<span class='kw'>impl</span> <span class='ident'>EncoderContext</span> {
-    <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+<span class='kw'>impl</span> <span class='ident'>Default</span> <span class='kw'>for</span> <span class='ident'>EncoderContext</span> {
+    <span class='kw'>fn</span> <span class='ident'>default</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
         <span class='ident'>EncoderContext</span> { <span class='ident'>c</span>: <span class='kw'>unsafe</span> { <span class='ident'>ll</span>::<span class='ident'>ZSTD_createCCtx</span>() } }
     }
 }
@@ -144,6 +145,7 @@
 }
 
 <span class='doccomment'>/// Allows to compress multiple blocks of data, re-using the context.</span>
+<span class='attribute'>#[<span class='ident'>derive</span>(<span class='ident'>Default</span>)]</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Compressor</span> {
     <span class='ident'>context</span>: <span class='ident'>EncoderContext</span>,
     <span class='ident'>dict</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>,
@@ -151,14 +153,14 @@
 
 <span class='kw'>impl</span> <span class='ident'>Compressor</span> {
     <span class='doccomment'>/// Creates a new zstd compressor</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>new</span>() <span class='op'>-&gt;</span> <span class='self'>Self</span> {
         <span class='ident'>Compressor</span>::<span class='ident'>with_dict</span>(<span class='ident'>Vec</span>::<span class='ident'>new</span>())
     }
 
     <span class='doccomment'>/// Creates a new zstd compressor, using the given dictionary.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_dict</span>(<span class='ident'>dict</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='kw'>Self</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_dict</span>(<span class='ident'>dict</span>: <span class='ident'>Vec</span><span class='op'>&lt;</span><span class='ident'>u8</span><span class='op'>&gt;</span>) <span class='op'>-&gt;</span> <span class='self'>Self</span> {
         <span class='ident'>Compressor</span> {
-            <span class='ident'>context</span>: <span class='ident'>EncoderContext</span>::<span class='ident'>new</span>(),
+            <span class='ident'>context</span>: <span class='ident'>EncoderContext</span>::<span class='ident'>default</span>(),
             <span class='ident'>dict</span>: <span class='ident'>dict</span>,
         }
     }
@@ -225,6 +227,8 @@
                     <dd>Move down in search results</dd>
                     <dt>&#9166;</dt>
                     <dd>Go to active search result</dd>
+                    <dt>+</dt>
+                    <dd>Collapse/expand all sections</dd>
                 </dl>
             </div>
 
