@@ -116,11 +116,7 @@
 <span id="72">72</span>
 <span id="73">73</span>
 <span id="74">74</span>
-<span id="75">75</span>
-<span id="76">76</span>
 </pre><pre class='rust '>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;clippy&quot;</span>, <span class='ident'>feature</span>(<span class='ident'>plugin</span>))]</span>
-<span class='attribute'>#<span class='op'>!</span>[<span class='ident'>cfg_attr</span>(<span class='ident'>feature</span><span class='op'>=</span><span class='string'>&quot;clippy&quot;</span>, <span class='ident'>plugin</span>(<span class='ident'>clippy</span>))]</span>
 <span class='doccomment'>//! Rust binding to the [zstd library][zstd].</span>
 <span class='doccomment'>//!</span>
 <span class='doccomment'>//! This crate provides:</span>
@@ -154,7 +150,7 @@
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>block</span>;
 <span class='kw'>pub</span> <span class='kw'>mod</span> <span class='ident'>dict</span>;
 
-<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>stream</span>::<span class='ident'>encoder</span>::<span class='ident'>Encoder</span>;
+<span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>stream</span>::<span class='ident'>encoder</span>::{<span class='ident'>Encoder</span>, <span class='ident'>AutoFinishEncoder</span>};
 <span class='kw'>pub</span> <span class='kw'>use</span> <span class='ident'>stream</span>::<span class='ident'>decoder</span>::<span class='ident'>Decoder</span>;
 
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>;

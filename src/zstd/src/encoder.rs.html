@@ -11,6 +11,7 @@
 
     <link rel="stylesheet" type="text/css" href="../../../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../../../main.css">
+    
 
     
     
@@ -188,6 +189,18 @@
 <span id="145">145</span>
 <span id="146">146</span>
 <span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>std</span>::<span class='ident'>io</span>::{<span class='self'>self</span>, <span class='ident'>Write</span>};
 
@@ -210,10 +223,14 @@
     }
 }
 
-
 <span class='doccomment'>/// An encoder that compress and forward data to another writer.</span>
 <span class='doccomment'>///</span>
-<span class='doccomment'>/// The zstd library has an internal input buffer (~128kb).</span>
+<span class='doccomment'>/// This allows to compress a stream of data</span>
+<span class='doccomment'>/// (good for files or heavy network stream).</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Don&#39;t forget to call `finish()` before dropping it!</span>
+<span class='doccomment'>///</span>
+<span class='doccomment'>/// Note: The zstd library has its own internal input buffer (~128kb).</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Encoder</span><span class='op'>&lt;</span><span class='ident'>W</span>: <span class='ident'>Write</span><span class='op'>&gt;</span> {
     <span class='comment'>// output writer (compressed data)</span>
     <span class='ident'>writer</span>: <span class='ident'>W</span>,
@@ -232,7 +249,9 @@
         <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>EncoderContext</span>::<span class='ident'>new</span>();
 
         <span class='comment'>// Initialize the stream</span>
-        <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ll</span>::<span class='ident'>parse_code</span>(<span class='kw'>unsafe</span> { <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressInit</span>(<span class='ident'>context</span>.<span class='ident'>c</span>, <span class='ident'>level</span>) }));
+        <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ll</span>::<span class='ident'>parse_code</span>(<span class='kw'>unsafe</span> {
+            <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressInit</span>(<span class='ident'>context</span>.<span class='ident'>c</span>, <span class='ident'>level</span>)
+        }));
 
         <span class='ident'>Encoder</span>::<span class='ident'>with_context</span>(<span class='ident'>writer</span>, <span class='ident'>context</span>)
     }
@@ -241,7 +260,8 @@
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// (Provides better compression ratio for small files,</span>
     <span class='doccomment'>/// but requires the dictionary to be present during decompression.)</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_dictionary</span>(<span class='ident'>writer</span>: <span class='ident'>W</span>, <span class='ident'>level</span>: <span class='ident'>i32</span>, <span class='ident'>dictionary</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>]) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> {
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>with_dictionary</span>(<span class='ident'>writer</span>: <span class='ident'>W</span>, <span class='ident'>level</span>: <span class='ident'>i32</span>, <span class='ident'>dictionary</span>: <span class='kw-2'>&amp;</span>[<span class='ident'>u8</span>])
+                           <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='kw'>Self</span><span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='ident'>context</span> <span class='op'>=</span> <span class='ident'>EncoderContext</span>::<span class='ident'>new</span>();
 
         <span class='comment'>// Initialize the stream with an existing dictionary</span>
@@ -266,7 +286,7 @@
         })
     }
 
-    <span class='doccomment'>/// Finishes the stream. You need to call this after writing your stuff.</span>
+    <span class='doccomment'>/// Finishes the stream. You *need* to call this after writing your stuff.</span>
     <span class='doccomment'>///</span>
     <span class='doccomment'>/// This returns the inner writer in case you need it.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>finish</span>(<span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span><span class='ident'>W</span><span class='op'>&gt;</span> {
@@ -274,7 +294,9 @@
         <span class='comment'>// First, closes the stream.</span>
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>out_size</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>capacity</span>();
         <span class='kw'>let</span> <span class='ident'>remaining</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ll</span>::<span class='ident'>parse_code</span>(<span class='kw'>unsafe</span> {
-            <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressEnd</span>(<span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>c</span>, <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_mut_ptr</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>out_size</span>)
+            <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressEnd</span>(<span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>c</span>,
+                                  <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_mut_ptr</span>(),
+                                  <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>out_size</span>)
         }));
         <span class='kw'>unsafe</span> {
             <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>set_len</span>(<span class='ident'>out_size</span>);
@@ -308,7 +330,8 @@
             <span class='kw'>unsafe</span> {
                 <span class='comment'>// Compress the given buffer into our output buffer</span>
                 <span class='kw'>let</span> <span class='ident'>code</span> <span class='op'>=</span> <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressContinue</span>(<span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>c</span>,
-                                                      <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_mut_ptr</span>(),
+                                                      <span class='self'>self</span>.<span class='ident'>buffer</span>
+                                                          .<span class='ident'>as_mut_ptr</span>(),
                                                       <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>out_size</span>,
                                                       <span class='ident'>buf</span>[<span class='ident'>read</span>..].<span class='ident'>as_ptr</span>(),
                                                       <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>in_size</span>);
@@ -326,7 +349,9 @@
     <span class='kw'>fn</span> <span class='ident'>flush</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>io</span>::<span class='prelude-ty'>Result</span><span class='op'>&lt;</span>()<span class='op'>&gt;</span> {
         <span class='kw'>let</span> <span class='kw-2'>mut</span> <span class='ident'>out_size</span> <span class='op'>=</span> <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>capacity</span>();
         <span class='kw'>let</span> <span class='ident'>written</span> <span class='op'>=</span> <span class='macro'>try</span><span class='macro'>!</span>(<span class='ident'>ll</span>::<span class='ident'>parse_code</span>(<span class='kw'>unsafe</span> {
-            <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressFlush</span>(<span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>c</span>, <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_mut_ptr</span>(), <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>out_size</span>)
+            <span class='ident'>ll</span>::<span class='ident'>ZBUFF_compressFlush</span>(<span class='self'>self</span>.<span class='ident'>context</span>.<span class='ident'>c</span>,
+                                    <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>as_mut_ptr</span>(),
+                                    <span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='ident'>out_size</span>)
         }));
         <span class='kw'>unsafe</span> {
             <span class='self'>self</span>.<span class='ident'>buffer</span>.<span class='ident'>set_len</span>(<span class='ident'>written</span>);

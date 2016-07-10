@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Encoder","An encoder that compress and forward data to another writer."]]});
